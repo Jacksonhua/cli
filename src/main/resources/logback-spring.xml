@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!--本地，dev环境 使用spring boot 自带的console格式输出-->
+    <springProfile name="dev">
+        <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>%d{HH:mm:ss.SSS} - [%thread] %-5level %X{correlationId} [%logger{96}|%M:%line] %msg%n</pattern>
+                <charset>UTF-8</charset> <!-- 此处设置字符集 -->
+            </encoder>
+        </appender>
+        <logger name="com.microsoft.azure.documentdb.DocumentClient" level="DEBUG">
+            <appender-ref ref="STDOUT"/>
+        </logger>
+        <logger name="com.microsoft.azure.servicebus" level="ERROR">
+            <appender-ref ref="STDOUT"/>
+        </logger>
+        <root level="INFO">
+            <appender-ref ref="STDOUT"/>
+        </root>
+    </springProfile>
+
+    <!--qa、prod使用PaaS monitor 支持的 json 格式输出-->
+    <springProfile name="qa,prod">
+        <!--引入paas monitor jar包中 的json appender，如需自定义格式也可以参考这个文件-->
+        <appender name="CONSOLE-JSON" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+                <layout class="ch.qos.logback.classic.PatternLayout">
+                    <pattern>{"create_time":"%d{yyyy-MM-dd HH:mm:ss.SSS}","thread_name":"%thread","correlation_id":"%X{correlationId}","traceId":"%X{traceId}","level":"%-5level","logger_name":"%class:%line","message":"%msg"}\r\n</pattern>
+                </layout>
+            </encoder>
+        </appender>
+
+        <logger name="com.microsoft.azure.documentdb.DocumentClient" level="DEBUG">
+            <appender-ref ref="CONSOLE-JSON"/>
+        </logger>
+        <logger name="com.microsoft.azure.servicebus" level="ERROR">
+            <appender-ref ref="CONSOLE-JSON"/>
+        </logger>
+        <root level="info">
+            <appender-ref ref="CONSOLE-JSON"/>
+        </root>
+    </springProfile>
+</configuration>
